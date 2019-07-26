@@ -61,7 +61,7 @@ Supports
 
 django-yaset has been tested with:
 
-* Django 2.1.3 using Python 3.6, 3.7
+* Django 2.2.3 using Python 3.6, 3.7
 
 Docs & Source
 =============

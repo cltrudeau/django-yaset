@@ -34,6 +34,7 @@ SETUP_ARGS = dict(
     ],
     tests_require=[
         'django-awl>=0.23.2',
+        'context_temp>=0.11.0',
     ]
 )
 

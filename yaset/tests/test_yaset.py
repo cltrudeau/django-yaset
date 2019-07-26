@@ -1,7 +1,11 @@
+import os
 from importlib import import_module
 
-from django.test import TestCase
+from django.conf import settings
+from django.core.management import call_command
+from django.test import TestCase, override_settings
 
+from context_temp import temp_directory
 from waelstow import capture_stdout
 
 from yaset import import_settings
@@ -9,6 +13,15 @@ from yaset import import_settings
 # ============================================================================
 
 class YasetTests(TestCase):
+    # --------
+    # Internal Assertions
+    def assert_file(self, dirname, filename):
+        path = os.path.join(dirname, filename)
+        self.assertTrue(os.path.isfile(path))
+
+    # --------
+    # Tests
+
     def test_working(self):
         # tests a load with a properly configure local_settings directory
 
@@ -52,3 +65,19 @@ class YasetTests(TestCase):
         result = capture.getvalue()
         self.assertIn('yaset could not load', result)
         self.assertIn('secret', result)
+
+    def test_create_local(self):
+        with temp_directory(path=settings.BASE_DIR) as td:
+            with override_settings(BASE_DIR=td):
+                project_name = os.path.basename(td)
+                project_root = os.path.join(settings.BASE_DIR, project_name)
+
+                call_command('create_local', 'dev', 'prod')
+
+                local_settings = os.path.join(project_root, 'local_settings')
+                secrets = os.path.join(local_settings, 'secrets')
+
+                #import pudb; pudb.set_trace()
+                for name in ['__init__', 'dev', 'prod']:
+                    self.assert_file(local_settings, '%s.py' % name)
+                    self.assert_file(secrets, '%s.py' % name)
